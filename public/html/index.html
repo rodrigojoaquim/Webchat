@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/css.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <title>Document</title>
+</head>
+<body onload="requestmsg()">
+    <div id="Titulo">ChatWeb</div>
+    <div id = "container">
+        <div id = "chat">
+            
+        </div>
+    </div>
+    <div id = "inputs">
+        <input type="text" placeholder="Nome" id="nome">
+        <input type="text" placeholder="Mensagem" id="msg">
+        <button type="button" id="btn">Enviar</button>
+    </div>
+</body>
+<script>
+    let chat = "";
+
+    const socket = io("http://188.82.27.172:3000");
+
+    function requestmsg(){
+        socket.emit("request_msg")
+    }
+
+    chats = document.getElementById("chat")
+
+    socket.on("send_chat", (data) => {
+        chat = ""
+        for (let i = 0; i < data.length; i++) {
+            console.log(data[i])
+            chat += `<div id = "msg_container">
+                <div id = nome_chat>${data[i].nome}</div>
+                <div id = msg_chat>${data[i].msg}</div>
+                <div id = hora>${data[i].time}</div>
+                </div>`
+        }
+        chats.innerHTML = chat
+    });
+
+    // Listen for "pong" replies
+    socket.on("pong", (data) => {
+        console.log("Server replied:", data); // Logs: "Server reply: Hello from client!"
+    });
+
+    btn = document.getElementById("btn")
+    msg = document.getElementById("msg")
+    nome = document.getElementById("nome")
+
+    btn.addEventListener("click", function (e) {
+        if (nome.value !== "" && msg.value !== ""){
+            socket.emit("send_msg", {
+                nome : nome.value,
+                msg : msg.value,
+                time: new Date().toLocaleTimeString()
+            });
+        }
+    });
+
+</script>
+</html>
